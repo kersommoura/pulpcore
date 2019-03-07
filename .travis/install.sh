@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -v
+set -ve
 
 # dev_requirements should not be needed for testing; don't install them to make sure
 pip install "Django<=$DJANGO_MAX"
@@ -15,6 +15,7 @@ export COMMIT_MSG=$(git show HEAD^2 -s)
 export PULP_FILE_PR_NUMBER=$(echo $COMMIT_MSG | grep -oP 'Required\ PR:\ https\:\/\/github\.com\/pulp\/pulp_file\/pull\/(\d+)' | awk -F'/' '{print $7}')
 export PULP_SMASH_PR_NUMBER=$(echo $COMMIT_MSG | grep -oP 'Required\ PR:\ https\:\/\/github\.com\/PulpQE\/pulp-smash\/pull\/(\d+)' | awk -F'/' '{print $7}')
 export PULP_PLUGIN_PR_NUMBER=$(echo $COMMIT_MSG | grep -oP 'Required\ PR:\ https\:\/\/github\.com\/pulp\/pulpcore-plugin\/pull\/(\d+)' | awk -F'/' '{print $7}')
+export PULP_CERTS_PR_NUMBER=$(echo $COMMIT_MSG | grep -oP 'Required\ PR:\ https\:\/\/github\.com\/pulp\/pulpcore-plugin\/pull\/(\d+)' | awk -F'/' '{print $7}')
 
 if [ -z "$PULP_PLUGIN_PR_NUMBER" ]; then
   pip install git+https://github.com/pulp/pulpcore-plugin.git
@@ -49,4 +50,16 @@ if [ ! -z "$PULP_SMASH_PR_NUMBER" ]; then
   git checkout FETCH_HEAD
   pip install -e .
   cd ../pulpcore
+fi
+
+if [ -z "$PULP_CERT_GUARDS_PR_NUMBER" ]; then
+  pip install git+https://github.com/pulp/pulp-certguard.git
+else
+  cd ../
+  git clone https://github.com/pulp/pulp-certguard.git
+  cd pulp-certguard
+  git fetch origin +refs/pull/$PULP_CERT_GUARDS_PR_NUMBER/merge
+  git checkout FETCH_HEAD
+  pip install -e .
+  cd ../pulp-certguard
 fi
