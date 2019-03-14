@@ -9,6 +9,7 @@ from requests import HTTPError
 from pulp_smash import api, config, utils
 from pulp_smash.pulp3.constants import DISTRIBUTION_PATH, REPO_PATH
 from pulp_smash.pulp3.utils import (
+    create_distribution,
     delete_orphans,
     gen_distribution,
     gen_publisher,
@@ -94,10 +95,7 @@ class AutoDistributionTestCase(unittest.TestCase):
         body['repository'] = repo['_href']
         body['publisher'] = publisher['_href']
 
-        response_dict = self.client.post(DISTRIBUTION_PATH, body)
-        dist_task = self.client.get(response_dict['task'])
-        distribution_href = dist_task['created_resources'][0]
-        distribution = self.client.get(distribution_href)
+        distribution = create_distribution(self.cfg, body)
         self.addCleanup(self.client.delete, distribution['_href'])
 
         last_version_href = get_versions(repo)[-1]['_href']
