@@ -3,13 +3,20 @@
 import unittest
 
 from pulp_smash import api, config, utils
-from pulp_smash.pulp3.utils import gen_distribution
+from pulp_smash.pulp3.constants import REPO_PATH
+from pulp_smash.pulp3.utils import gen_distribution, gen_repo, sync
 
 from pulpcore.tests.functional.api.using_plugin.constants import (
     FILE_DISTRIBUTION_PATH,
+    FILE_REMOTE_PATH,
 )
-from pulpcore.tests.functional.api.using_plugin.utils import skip_if
+from pulpcore.tests.functional.api.using_plugin.utils import (
+    gen_file_remote,
+    create_file_publication,
+    skip_if,
+)
 from pulpcore.tests.functional.api.using_plugin.utils import set_up_module as setUpModule  # noqa
+
 
 
 class CRUDPublicationDistributionTestCase(unittest.TestCase):
@@ -27,12 +34,42 @@ class CRUDPublicationDistributionTestCase(unittest.TestCase):
         cls.client = api.Client(cls.cfg)
         cls.distribution = {}
         cls.attr = ('name', 'base_path',)
+        utils.http_get()
 
     def test_01_create(self):
         """Create a publication distribution."""
+        repo = self.client.post(REPO_PATH, gen_repo())
+        self.addCleanup(self.client.delete, repo['_href'])
+
+        remote = self.client.post(FILE_REMOTE_PATH, gen_file_remote())
+        self.addCleanup(self.client.delete, remote['_href'])
+
+        sync(self.cfg, remote, repo)
+        repo = self.client.get(repo['_href'])
+
+        publication = create_file_publication(self.cfg, repo)
+        self.addCleanup(self.client.delete, publication['_href'])
+
         self.distribution.update(
-            self.client.post(FILE_DISTRIBUTION_PATH, gen_distribution())
+            self.client.post(
+                FILE_DISTRIBUTION_PATH,
+                gen_distribution()
+            )
         )
+
+        # for key, val in self.distribution.items():
+        #     if key == 'content_guard':
+        #         self.assertIsNone(val, self.distribution)
+        #     else:
+        #         self.assertIsNotNone(val, self.distribution)
+
+        publication = self.client.get(publication['_href'])
+
+        # self.assertEqual(
+        #     publication['distributions'],
+        #     self.distribution['_href'],
+        #     publication
+        # )
 
     @skip_if(bool, 'distribution', False)
     def test_02_read(self):
