@@ -46,7 +46,7 @@ class AuthTestCase(unittest.TestCase):
         )
         with self.assertRaises(HTTPError):
             response.raise_for_status()
-        for key in ('invalid', 'username', 'password'):
+        for key in ('invalid', 'username',):
             self.assertIn(
                 key,
                 response.json()['detail'].lower(),
