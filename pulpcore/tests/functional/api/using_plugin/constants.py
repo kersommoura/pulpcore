@@ -1,9 +1,11 @@
 # coding=utf-8
 """Constants for pulpcore API tests that require the use of a plugin."""
+import os
 from urllib.parse import urljoin
 
 from pulp_smash.constants import PULP_FIXTURES_BASE_URL
 from pulp_smash.pulp3.constants import (
+    BASE_CONTENT_GUARDS_PATH,
     BASE_DISTRIBUTION_PATH,
     BASE_PUBLICATION_PATH,
     BASE_REMOTE_PATH,
@@ -25,6 +27,23 @@ DOCKER_CONTENT_BLOB_NAME = 'docker.blob'
 DOCKER_CONTENT_TAG_NAME = 'docker.tag'
 
 DOCKER_REMOTE_PATH = urljoin(BASE_REMOTE_PATH, 'docker/docker/')
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+
+CERTS_BASE_PATH = os.path.join(
+    CURRENT_DIR, 'artifacts', 'x509', 'certificates'
+)
+
+CERT_CA_FILE_PATH = os.path.join(CERTS_BASE_PATH, 'ca.pem')
+
+CERT_CLIENT_FILE_PATH = os.path.join(CERTS_BASE_PATH, 'client.pem')
+
+KEYS_BASE_PATH = os.path.join(CURRENT_DIR, 'artifacts', 'x509', 'keys')
+
+KEYS_CA_FILE_PATH = os.path.join(KEYS_BASE_PATH, 'ca.pem')
+
+KEYS_CLIENT_FILE_PATH = os.path.join(KEYS_BASE_PATH, 'client.pem')
+
+CERTGUARD_X509_PATH = urljoin(BASE_CONTENT_GUARDS_PATH, "certguard/x509/")
 
 FILE_CONTENT_NAME = 'file.file'
 

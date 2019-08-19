@@ -304,6 +304,8 @@ class ContentServePublicationDistributionTestCase(unittest.TestCase):
         self.assertEqual(len(pulp_manifest), FILE_FIXTURE_COUNT, pulp_manifest)
 
         added_content = get_added_content(repo)
+        from ipdb import set_trace
+        set_trace()
         unit_path = added_content[FILE_CONTENT_NAME][0]['relative_path']
         unit_url = self.cfg.get_hosts('api')[0].roles['api']['scheme']
         unit_url += '://' + distribution['base_url'] + '/'
